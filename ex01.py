@@ -230,11 +230,123 @@ Write a function (or program) that will display a text from any text file while:
 -changing lowercase letters to uppercase. -uppercase to lowercase letters.
 """
 
-def change_case(filename):
-    with open(filename) as f:
-        lines = f.readlines()
-        for line in lines:
-            new_line = line.swapcase()
-            print(new_line)
+# def change_case(filename):
+#     with open(filename) as f:
+#         lines = f.readlines()
+#         for line in lines:
+#             new_line = line.swapcase()
+#             print(new_line)
+#
+# change_case('other/file_0.txt')
 
-change_case('other/file_0.txt')
+"""
+Ex. 12
+------
+OOP Basics
+
+Design a Rational class representing rational numbers as pairs of integers (
+a numerator and a denominator).
+
+The class shoud contain magic methods that define the following 
+functionalities:
+- the comparison methods: eq, lt, gt, le, ge, cmp
+- the operators +, -, *, / should be implemented correctly and return a new 
+  object of this class
+- the comparison methods should take 1/2 = 2/4
+- the float method should return a decimal number, and int should be similar to
+  its counterpart in the case of float numbers. Additionally, the invert 
+  method should be used.
+- it should be possible to save the current result to a file and load it.
+
+- the class should always try to keep the abbreviated version of the fraction.
+"""
+from math import gcd
+import json
+
+class Rational:
+    def __init__(self, numerator, denominator):
+        self.numerator = numerator
+        self.denominator = denominator
+        self.to_irreducible_fraction()
+
+    def to_irreducible_fraction(self):
+        greatest_common_divisor = gcd(self.numerator, self.denominator)
+        while greatest_common_divisor != 1:
+            self.numerator = self.numerator // greatest_common_divisor
+            self.denominator = self.denominator // greatest_common_divisor
+            greatest_common_divisor = gcd(self.numerator, self.denominator)
+
+    def __str__(self):
+        if self.denominator == 1:
+            return str(self.numerator)
+        else:
+            return str(self.numerator) + "/" + str(self.denominator)
+
+    def __repr__(self):
+        items = (f"{k}={v}" for k, v, in self.__dict__.items())
+        return f"{self.__class__.__name__}({', '.join(items)})"
+
+    def __add__(self, other):
+        numerator = self.numerator * other.denominator + \
+                    self.denominator * other.numerator
+        denominator = self.denominator * other.denominator
+
+        return Rational(numerator, denominator)
+
+    def __sub__(self, other):
+        numerator = self.numerator * other.denominator - self.denominator * \
+                    other.numerator
+        denominator = self.denominator * other.denominator
+
+        return Rational(numerator, denominator)
+
+    def __mul__(self, other):
+        return Rational(self.numerator * other.numerator, self.denominator *
+                        other.denominator)
+
+    def __truediv__(self, other):
+        return self * ~other
+
+    def __lt__(self, other):
+        return self.__cmp__(other) < 0
+
+    def __le__(self, other):
+        return self.__cmp__(other) <= 0
+
+    def __gt__(self, other):
+        return self.__cmp__(other) > 0
+
+    def __ge__(self, other):
+        return self.__cmp__(other) >= 0
+
+    def __eq__(self, other):
+        return self.__cmp__(other) == 0
+
+    ## Compare two numbers
+    def __cmp__(self, other):
+        temp = self - other
+        if temp.numerator > 0:
+            return 1
+        elif temp.numerator < 0:
+            return -1
+        else:
+            return 0
+
+    def __invert__(self):
+        return Rational(self.denominator, self.numerator)
+
+    def __float__(self):
+        return self.numerator/self.denominator
+
+    def __int__(self):
+        return int(float(self))
+
+    def save(self):
+        json.dump(self, )
+
+    def load(self):
+        json.load()
+
+number1 = Rational(16, 32)
+
+print(f'Number1: {number1}')
